@@ -7,45 +7,23 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
     var dataFilePath: URL?
-    
     var itemArray = [TodoItem]()
+    let ctx = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
         
-        loadData()
+        //loadData()
         
     }
     
-    //MARK: - DataMethods
-    func saveData(){
-        let encoder = PropertyListEncoder()
-        do{
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
-        }catch {
-            print(error)
-        }
-    }
-    
-    func loadData(){
-        
-        do{
-            if let data = try? Data(contentsOf: dataFilePath!){
-                let decoder = PropertyListDecoder()
-                itemArray = try decoder.decode([TodoItem].self, from: data)
-                tableView.reloadData()
-            }
-        } catch {
-            print(error)
-        }
-    }
     
 }
 
@@ -96,7 +74,8 @@ extension TodoListViewController{
             //what will happenones the user clicks the add item button on UIAlert
             if let newTitle = textField.text {
                 if(newTitle != ""){
-                    let newItem = TodoItem(title: newTitle, done: false)
+                    let newItem = TodoItem(context: self.ctx)
+                    newItem.title = newTitle
                     self.itemArray.append(newItem)
                     self.saveData()
                     self.tableView.reloadData()
@@ -109,3 +88,28 @@ extension TodoListViewController{
     }
 }
 
+//MARK: - DataMethods
+extension TodoListViewController{
+    
+    func saveData(){
+        do{
+            try ctx.save()
+        }catch {
+            print(error)
+        }
+    }
+
+//    func loadData(){
+//
+//        do{
+//            if let data = try? Data(contentsOf: dataFilePath!){
+//                let decoder = PropertyListDecoder()
+//                itemArray = try decoder.decode([TodoItem].self, from: data)
+//                tableView.reloadData()
+//            }
+//        } catch {
+//            print(error)
+//        }
+//    }
+
+}
