@@ -11,16 +11,13 @@ import CoreData
 
 class TodoListViewController: UITableViewController {
     
-    var dataFilePath: URL?
     var itemArray = [TodoItem]()
     let ctx = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-        
-        //loadData()
+        loadData()
         
     }
     
@@ -37,7 +34,6 @@ extension TodoListViewController{
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
         let item = itemArray[indexPath.row]
         
-        
         cell.textLabel?.text = item.title
         cell.accessoryType = item.done ? .checkmark : .none
         return cell
@@ -48,11 +44,11 @@ extension TodoListViewController{
 extension TodoListViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+//        ctx.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
         saveData()
         tableView.deselectRow(at: indexPath, animated: true)
-        DispatchQueue.main.asyncAfter(deadline: .now()+0.2) {
-            tableView.reloadData()
-        }
+        
     }
     
 }
@@ -78,7 +74,6 @@ extension TodoListViewController{
                     newItem.title = newTitle
                     self.itemArray.append(newItem)
                     self.saveData()
-                    self.tableView.reloadData()
                 }
             }
         }
@@ -97,19 +92,17 @@ extension TodoListViewController{
         }catch {
             print(error)
         }
+        self.tableView.reloadData()
     }
 
-//    func loadData(){
-//
-//        do{
-//            if let data = try? Data(contentsOf: dataFilePath!){
-//                let decoder = PropertyListDecoder()
-//                itemArray = try decoder.decode([TodoItem].self, from: data)
-//                tableView.reloadData()
-//            }
-//        } catch {
-//            print(error)
-//        }
-//    }
+    func loadData(){
+        let request: NSFetchRequest<TodoItem> = TodoItem.fetchRequest()
+        do{
+            itemArray = try ctx.fetch(request)
+            tableView.reloadData()
+        }catch{
+            print("Error fetching data: \(error)")
+        }
+    }
 
 }
