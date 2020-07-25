@@ -20,9 +20,7 @@ class TodoListViewController: UITableViewController {
         if category == nil {
             dismiss(animated: true, completion: nil)
         }
-        for item in category?.items?.allObjects as! [TodoItem] {
-            itemArray.append(item)
-        }
+        loadData()
         
     }
     
@@ -84,7 +82,13 @@ extension TodoListViewController{
             }
         }
         
+        let dismissAction = UIAlertAction(title: "Cancel", style: .default) { (action) in
+            alert.resignFirstResponder()
+            alert.dismiss(animated: true, completion: nil)
+        }
+        
         alert.addAction(action)
+        alert.addAction(dismissAction)
         present(alert, animated: true, completion: nil)
         
     }
@@ -103,13 +107,20 @@ extension TodoListViewController{
     }
 
     
-    func loadData(with request: NSFetchRequest<TodoItem> = TodoItem.fetchRequest()){
+    func loadData(with request: NSFetchRequest<TodoItem>){
         do{
             itemArray = try ctx.fetch(request)
             self.tableView.reloadData()
         }catch{
             print("Error fetching data: \(error)")
         }
+    }
+    func loadData(){
+        itemArray.removeAll()
+        for item in category?.items?.allObjects as! [TodoItem]{
+            itemArray.append(item)
+        }
+        tableView.reloadData()
     }
 
 }
@@ -140,10 +151,14 @@ extension TodoListViewController: UISearchBarDelegate{
     func searchForText(_ text: String){
         let request: NSFetchRequest<TodoItem> = TodoItem.fetchRequest()
         if(text != ""){
-            request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", text)
+            let safeCat = category!
+            request.predicate = NSPredicate(format: "parentCategory.name = %@ AND title CONTAINS[cd] %@", safeCat.name!,text)
             request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+            loadData(with: request)
+        } else {
+            loadData()
         }
-        loadData(with: request)
     }
     
 }
+

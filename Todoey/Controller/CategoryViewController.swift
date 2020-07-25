@@ -20,31 +20,36 @@ class CategoryViewController: UITableViewController {
         loadData()
 
     }
-    
+    //MARK: - Add New Category
     @IBAction func addbuttonPressed(_ sender: UIBarButtonItem) {
         var textField: UITextField = UITextField()
         
-        let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Add New Todoey Category", message: "", preferredStyle: .alert)
         
         alert.addTextField { (alertTextField) in
-            alertTextField.placeholder = "Create new Item"
+            alertTextField.placeholder = "Create new category"
             textField = alertTextField
         }
         
-        let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
+        let action = UIAlertAction(title: "Add Category", style: .default) { (action) in
             //what will happenones the user clicks the add item button on UIAlert
             if let newTitle = textField.text {
                 if(newTitle != ""){
                     let newCategory = TodoCategory(context: self.ctx)
                     newCategory.name = newTitle
                     self.categoryArray.append(newCategory)
-                    self.tableView.reloadData()
                     self.saveData()
                 }
             }
         }
         
+        let dismissAction = UIAlertAction(title: "Cancel", style: .default) { (action) in
+            alert.resignFirstResponder()
+            alert.dismiss(animated: true, completion: nil)
+        }
+        
         alert.addAction(action)
+        alert.addAction(dismissAction)
         present(alert, animated: true, completion: nil)
         
     }
@@ -86,6 +91,7 @@ extension CategoryViewController{
         }catch{
             print("Error saving data: \(error)")
         }
+        tableView.reloadData()
     }
     
     func loadData(with request: NSFetchRequest<TodoCategory> = TodoCategory.fetchRequest()){
@@ -95,6 +101,7 @@ extension CategoryViewController{
         }catch{
             print("Error getting data: \(error)")
         }
+        tableView.reloadData()
     }
     
 }
@@ -105,6 +112,39 @@ extension CategoryViewController{
         if segue.identifier == "gotoItems" {
             let destinationVC = segue.destination as! TodoListViewController
             destinationVC.category = selectedCategory
+        }
+    }
+}
+
+//MARK: - Search Bar Delegate
+extension CategoryViewController: UISearchBarDelegate{
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        if let text = searchBar.text {
+            search(for: text)
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if(searchText==""){
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+        search(for: searchText)
+    }
+    
+    func search(for text: String){
+        if(text == ""){
+            loadData()
+        }else{
+            let request: NSFetchRequest<TodoCategory> = TodoCategory.fetchRequest()
+            request.predicate = NSPredicate(format: "name CONTAINS[cd] %@", text)
+            request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+            loadData(with: request)
         }
     }
 }

@@ -14,9 +14,17 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <searchBar key="tableHeaderView" contentMode="redraw" id="IvZ-Za-xsq">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="bUf-Rn-EsB" id="oct-sC-Nla"/>
+                            </connections>
+                        </searchBar>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="CategoryCell" id="jpt-Fr-S2g">
-                                <rect key="frame" x="0.0" y="28" width="414" height="43.5"/>
+                                <rect key="frame" x="0.0" y="72" width="414" height="43.5"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="jpt-Fr-S2g" id="nWA-BH-Zng">
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="43.5"/>
@@ -26,7 +34,7 @@
                         </prototypes>
                         <connections>
                             <outlet property="dataSource" destination="bUf-Rn-EsB" id="d8Z-SW-276"/>
-                            <outlet property="delegate" destination="bUf-Rn-EsB" id="sQ6-dY-Y1h"/>
+                            <outlet property="delegate" destination="bUf-Rn-EsB" id="PA0-QP-kuU"/>
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Todoey" id="WWF-AO-dzd">
